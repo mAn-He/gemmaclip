@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyTorch / ML
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+checkpoints/
+runs/
+wandb/
+
+# Outputs and model artifacts
+outputs/
+models/
+results/
+logs/
+
+# Data
+data/
+datasets/
+*.csv
+*.json
+*.pickle
+*.pkl
+
+# Images (keep specific test images)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+!test_image_biology.jpg
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Specific to this project
+run_inference.sh
+my_results.md
+test_image.jpg 
