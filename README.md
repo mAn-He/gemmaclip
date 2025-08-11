@@ -193,12 +193,10 @@ If you find this work useful for your research, please consider citing:
 
 ```bibtex
 @misc{gemma-clip-2024,
-  author    = {[Your Name]},
+  author    = {[Ho Seung Kang]},
   title     = {Gemma-CLIP: An Efficient LLaVA-style Vision-Language Model for Scientific Reasoning},
-  year      = {2024},
-  publisher = {GitHub},
-  journal   = {GitHub repository},
-  howpublished = {\url{https://github.com/[Your-Username]/[Your-Repo-Name]}}
+  year      = {2025},
+  howpublished = {\url{https://github.com/mAn-He/gemmaclip}}
 }
 ```
 
