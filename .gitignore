@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -21,39 +25,30 @@ wheels/
 *.egg
 MANIFEST
 
-# PyTorch / ML
-*.pth
-*.pt
-*.ckpt
-*.safetensors
-checkpoints/
-runs/
-wandb/
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
 
-# Outputs and model artifacts
-outputs/
-models/
-results/
-logs/
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Data
-data/
-datasets/
-*.csv
-*.json
-*.pickle
-*.pkl
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
-# Images (keep specific test images)
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
-!test_image_biology.jpg
-
-# Environment
+# Environments
 .env
 .venv
 env/
@@ -62,26 +57,26 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE
-.vscode/
+# IDE / Editor specific files
 .idea/
+.vscode/
 *.swp
 *.swo
-*~
 
-# Jupyter
-.ipynb_checkpoints
-
-# OS
+# OS-specific files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Specific to this project
-run_inference.sh
-my_results.md
-test_image.jpg 
+# Large files and model outputs
+# 절대 Git에 올리면 안 되는 파일들입니다.
+# These files should NEVER be committed to Git.
+/outputs/
+/data/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints

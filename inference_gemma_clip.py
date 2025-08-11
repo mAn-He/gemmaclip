@@ -24,7 +24,6 @@ from __future__ import annotations
 import os
 import argparse
 from typing import Any, Dict, List, Optional
-from datetime import datetime
 
 import torch
 import torch.nn as nn
@@ -78,7 +77,6 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--top_p", type=float, default=0.9, help="Top-p nucleus sampling")
 
     parser.add_argument("--hf_token", type=str, default=True, help="Hugging Face token for gated models; otherwise use env or CLI login")
-    parser.add_argument("--output_file", type=str, default="inference_results.md", help="Output markdown file to save results")
 
     return parser
 
@@ -99,57 +97,6 @@ class Projector(nn.Module):
 
 def get_device() -> torch.device:
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-def save_results_to_md(args, response_text: str):
-    """Save inference results to markdown file"""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Prepare content
-    md_content = f"""# sVLM Inference Results
-
-## Inference Run: {timestamp}
-
-### Image
-**Path:** `{args.image_path}`
-
-### Query
-**Question:** {args.question}
-
-### Context
-{args.context if args.context else "*No context provided*"}
-
-### Choices
-{chr(10).join([f"- {choice.strip()}" for choice in args.choices.split(";")]) if args.choices else "*No choices provided*"}
-
-### Model Response
-```
-{response_text}
-```
-
-### Configuration
-- **Model:** {args.llm_name}
-- **Vision:** {args.vision_name}
-- **Adapter:** {args.adapter_dir}
-- **Projector:** {args.projector_path}
-- **Max New Tokens:** {args.max_new_tokens}
-- **Temperature:** {args.temperature}
-- **Top-p:** {args.top_p}
-
----
-
-"""
-    
-    # Append to file (create if doesn't exist)
-    if os.path.exists(args.output_file):
-        with open(args.output_file, 'r', encoding='utf-8') as f:
-            existing_content = f.read()
-        md_content = md_content + existing_content
-    
-    with open(args.output_file, 'w', encoding='utf-8') as f:
-        f.write(md_content)
-    
-    print(f"Results saved to {args.output_file}")
 
 
 def main():
@@ -219,10 +166,6 @@ def main():
             torch_dtype=compute_dtype,
             device_map="auto",
         )
-    # Resize embeddings to match training (when special tokens were added)
-    # The saved tokenizer includes the correct vocab size
-    llm.resize_token_embeddings(len(tokenizer))
-    
     # Apply adapters
     llm = PeftModel.from_pretrained(llm, args.adapter_dir, is_trainable=False)
 
@@ -276,10 +219,8 @@ def main():
         vision_hidden = vision_out.last_hidden_state  # [1, N_img_tokens, vision_dim]
         proj_img = projector(vision_hidden)[0]       # [N_img_tokens, llm_hidden]
 
-        # Get text embeds and ensure dtype consistency
+        # Get text embeds
         text_embeds = llm.get_input_embeddings()(input_ids)  # [L, hidden]
-        # Ensure projector output matches text embeddings dtype
-        proj_img = proj_img.to(text_embeds.dtype)
         # Compose embeddings: pre_image + proj_img + post_image
         pre = text_embeds[:image_pos]
         post = text_embeds[image_pos+1:]
@@ -300,30 +241,9 @@ def main():
             eos_token_id=tokenizer.eos_token_id,
         )
 
-    # Decode and extract model response
-    full_text = tokenizer.decode(gen_out[0], skip_special_tokens=False)
-    
-    # Extract just the model's response (after the prompt)
-    prompt_text = tokenizer.decode(input_ids, skip_special_tokens=False)
-    if prompt_text in full_text:
-        response_text = full_text[len(prompt_text):].strip()
-    else:
-        response_text = full_text.strip()
-    
-    # Clean up response
-    if response_text.startswith("<start_of_turn>model"):
-        response_text = response_text.replace("<start_of_turn>model", "").strip()
-    if response_text.endswith("<end_of_turn>"):
-        response_text = response_text.replace("<end_of_turn>", "").strip()
-    
+    text = tokenizer.decode(gen_out[0], skip_special_tokens=False)
     print("===== Generation =====")
-    print("Query:", args.question)
-    print("Context:", args.context[:100] + "..." if len(args.context) > 100 else args.context)
-    print("Choices:", args.choices)
-    print("Model Response:", response_text)
-    
-    # Save results to markdown file
-    save_results_to_md(args, response_text)
+    print(text)
 
 
 if __name__ == "__main__":
