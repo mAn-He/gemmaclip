@@ -208,3 +208,41 @@ If you find this work useful for your research, please consider citing:
 
 This project is licensed under the Apache License 2.0. Please see the LICENSE file for details.  
 The use of third-party models (Gemma, CLIP) is subject to their respective licenses.
+
+## 8. Evaluation (ScienceQA)
+
+- **Dataset**: ScienceQA (full test split)
+- **Total processed**: 4241
+- **Labeled total**: 4241
+- **Correct**: 2164
+- **Accuracy**: 51.03%
+
+Artifacts (example):
+- `eval_scienceqa_clean/metrics.json`
+- `eval_scienceqa_clean/predictions.jsonl`
+- `eval_scienceqa_clean/report.md` (qualitative samples)
+
+
+## 9. End-to-End Flow (LLaVA‑style MLP Fusion)
+
+```mermaid
+flowchart TD
+  A["Image (RGB)"] --> B["CLIP ViT-L/14-336 (frozen)\nlast_hidden_state: [1, N_img, 1024]"]
+  B --> C["2-layer MLP Projector (trainable)\n1024 → H (LLM hidden)"]
+
+  D["User Prompt with <image> token"] --> E["Tokenize → input_ids [L]"]
+  E --> F["LLM Input Embeddings\nembed(input_ids): [L, H]"]
+
+  C --> G["Embed Replacement at <image> position k:\nconcat(pre[0:k], proj_img[0:N_img], post[k+1:L])"]
+  F --> G
+
+  G --> H["inputs_embeds: [1, L+N_img-1, H]\nattention_mask: ones"]
+  H --> I["Gemma‑3 4B‑IT (4-bit, frozen base)\n+ QLoRA adapters (trainable)"]
+  I --> J["Generate (sampling/greedy)"]
+  J --> K["Decode → Model Response"]
+```
+
+Notes:
+- Vision and LLM backbones are frozen; only the 2‑layer MLP projector and LoRA adapters are trained.
+- Fusion is performed by replacing the single `<image>` token embedding with the projected CLIP token sequence (no cross‑attention/Q‑former).
+- Attention mask uses ones over the effective sequence length (unpadded in our setup).
