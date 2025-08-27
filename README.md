@@ -16,33 +16,7 @@ The architecture is designed for modularity and efficiency:
 - **Vision Encoder (Frozen):** The CLIP-ViT-L/14 model encodes an input image into a sequence of patch embeddings.
 - **LLM Backbone (Frozen + QLoRA):** The Gemma-3-4B-IT model is loaded in 4-bit precision. While its base weights are frozen, QLoRA adapters are inserted into its attention and feed-forward layers, allowing for efficient tuning.
 - **Projector (Trainable):** A 2-layer MLP maps the vision embeddings from the CLIP hidden space to the Gemma-3 embedding space. These projected embeddings act as a "soft visual prompt" for the LLM.
-
-```
-Input Image 🖼️
-      │
-      ▼
-┌──────────────────┐
-│ CLIP ViT-L/14-336│ (Frozen)
-│ Vision Encoder   │
-└──────────────────┘
-      │
-      ▼ (Patch Embeddings)
-┌──────────────────┐
-│   MLP Projector  │ (Trainable)
-└──────────────────┘
-      │ (Mapped to LLM Space)
-      │
-      │             Input Text 📝
-      │                   │
-      └───────────────────▼──────────────────┐
-                         ┌──────────────────┐
-                         │ Gemma-3 4B-IT    │ (Frozen Base + Trainable QLoRA)
-                         │ Language Model   │
-                         └──────────────────┘
-                                │
-                                ▼
-                         Generated Text 💬 (Reasoning + Answer)
-```
+<img width="1788" height="720" alt="image" src="https://github.com/user-attachments/assets/42f53096-bdf6-465c-8837-de9b6483895c" />
 
 ---
 
